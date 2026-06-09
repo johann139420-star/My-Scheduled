@@ -60,6 +60,8 @@ textarea.form-input{resize:none;min-height:160px;line-height:1.6;font-size:13px}
 .empty{text-align:center;padding:30px 0;color:var(--text3)}
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--green);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:200;white-space:nowrap;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.ai-result{background:rgba(59,130,246,0.08);border:0.5px solid rgba(59,130,246,0.25);border-radius:10px;padding:14px;margin-top:12px}
+.ai-result-title{font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
 .ai-day{padding:8px 0;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center}
 .ai-day:last-child{border-bottom:none}
 .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
@@ -70,6 +72,49 @@ textarea.form-input{resize:none;min-height:160px;line-height:1.6;font-size:13px}
 .info-box b{color:var(--text)}
 .settings-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:0.5px solid var(--border)}
 .settings-row:last-child{border-bottom:none}
+
+/* ── CALENDARIO ── */
+.cal-toggle{display:flex;background:var(--surface2);border-radius:10px;padding:3px;margin-bottom:14px;gap:3px}
+.cal-toggle-btn{flex:1;padding:8px;border:none;background:none;color:var(--text2);font-size:12px;font-family:inherit;cursor:pointer;border-radius:8px;font-weight:500;transition:all .2s}
+.cal-toggle-btn.active{background:var(--accent);color:#fff;font-weight:600}
+.cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.cal-nav-btn{width:34px;height:34px;border-radius:10px;border:0.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.cal-nav-title{font-size:16px;font-weight:700;letter-spacing:-0.3px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:14px}
+.cal-dow{text-align:center;font-size:10px;font-weight:600;color:var(--text3);padding:4px 0;text-transform:uppercase}
+.cal-day{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;background:var(--surface2);border:0.5px solid transparent;transition:all .15s}
+.cal-day.empty{background:transparent;border-color:transparent;cursor:default}
+.cal-day.has-work{background:rgba(59,130,246,0.12);border-color:rgba(59,130,246,0.25)}
+.cal-day.heavy-work{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.25)}
+.cal-day.selected{border-color:var(--accent);background:rgba(59,130,246,0.2)}
+.cal-day-num{font-size:12px;font-weight:600;color:var(--text2)}
+.cal-day.has-work .cal-day-num{color:var(--text)}
+.cal-day-hs{font-size:9px;font-weight:700;color:var(--accent);margin-top:1px}
+.cal-day.heavy-work .cal-day-hs{color:var(--red)}
+.cal-day-dot{display:flex;gap:2px;margin-top:2px}
+.cal-dot{width:4px;height:4px;border-radius:50%}
+.cal-detail{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;display:none}
+.cal-detail.show{display:block}
+.cal-week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:12px}
+.cal-week-col{display:flex;flex-direction:column;align-items:center;gap:4px}
+.cal-week-dow{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;text-align:center}
+.cal-week-date{font-size:13px;font-weight:700;width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.cal-week-date.has-work{background:rgba(59,130,246,0.15);color:var(--accent)}
+.cal-week-date.heavy{background:rgba(239,68,68,0.15);color:var(--red)}
+.cal-week-date.empty{color:var(--text3)}
+.cal-week-bar{width:100%;border-radius:4px;min-height:4px;background:var(--surface2)}
+.cal-week-bar-fill{border-radius:4px;transition:height .4s ease}
+.cal-week-hs{font-size:10px;font-weight:700;color:var(--text2)}
+.cal-week-turnos{font-size:9px;color:var(--text3)}
+.cal-legend{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.cal-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.cal-legend-dot{width:10px;height:10px;border-radius:3px}
+.cal-bars-wrap{display:flex;align-items:flex-end;gap:6px;height:80px;margin-bottom:6px}
+.cal-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.cal-bar{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height .5s ease}
+.cal-bar-label{font-size:9px;color:var(--text3);text-align:center}
+.cal-bar-val{font-size:9px;font-weight:700;color:var(--text2)}
+
 </style>
 </head>
 <body>
@@ -82,6 +127,7 @@ textarea.form-input{resize:none;min-height:160px;line-height:1.6;font-size:13px}
   </div>
 </div>
 
+<!-- ══ RESUMEN ══ -->
 <div class="view active" id="v-resumen">
   <div class="grid2">
     <div class="stat"><div class="stat-label">Total horas</div><div class="stat-value" style="color:var(--accent)" id="r-hs">—</div><div class="stat-sub">todas las semanas</div></div>
@@ -99,12 +145,14 @@ textarea.form-input{resize:none;min-height:160px;line-height:1.6;font-size:13px}
   </div>
 </div>
 
+<!-- ══ DETALLE ══ -->
 <div class="view" id="v-detalle">
   <div class="week-tabs" id="d-tabs"></div>
   <div class="week-bar" id="d-bar"></div>
   <div class="card" style="padding:0 16px"><div id="d-dias"></div></div>
 </div>
 
+<!-- ══ PROYECCIÓN ══ -->
 <div class="view" id="v-proyeccion">
   <div class="card">
     <div class="card-title">Configuración</div>
@@ -126,18 +174,30 @@ textarea.form-input{resize:none;min-height:160px;line-height:1.6;font-size:13px}
   </div>
 </div>
 
+<!-- ══ AGREGAR SEMANA ══ -->
 <div class="view" id="v-agregar">
-  <div class="info-box"><b>¿Cómo usar?</b><br>Pegá tu horario exactamente como lo recibís y la IA lo interpreta automáticamente. Luego confirmás antes de guardar.</div>
+
+  <div class="info-box">
+    <b>¿Cómo usar?</b><br>
+    Pegá tu horario exactamente como lo recibís (días, horas y lugar) y la IA lo interpreta automáticamente. Luego confirmás antes de guardar.
+  </div>
+
   <div class="card">
     <div class="card-title">Nombre de la semana</div>
     <input type="text" class="week-name-input" id="f-semname" placeholder="Ej: Semana 5 — 13 al 19 Jun">
     <div class="card-title" style="margin-top:4px">Pegá el horario aquí</div>
-    <textarea class="form-input" id="f-horario" placeholder="Ejemplo:&#10;Sábado 2pm a 10pm Budget JFK&#10;Domingo 7am a 3pm Avis JFK&#10;Lunes 10pm a 6am Budget JFK&#10;..."></textarea>
+    <textarea class="form-input" id="f-horario" placeholder="Ejemplo:
+Sábado 2pm a 10pm Budget JFK
+Domingo 7am a 3pm Avis JFK
+Lunes 10pm a 6am Budget JFK
+Martes 2pm a 10pm Avis JFK
+..."></textarea>
     <button class="btn-primary" id="btn-interpretar" onclick="interpretarHorario()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M22 2 12 12"/><path d="m17 2 5 5-5 5"/></svg>
       Interpretar con IA
     </button>
   </div>
+
   <div id="ai-preview" style="display:none">
     <div class="card">
       <div class="card-title">Vista previa — confirmá antes de guardar</div>
@@ -148,9 +208,60 @@ textarea.form-input{resize:none;min-height:160px;line-height:1.6;font-size:13px}
       </div>
     </div>
   </div>
+
   <div class="card">
     <div class="card-title">Semanas guardadas (<span id="sem-count">0</span>)</div>
     <div id="sem-lista"><div class="empty"><div style="font-size:32px;margin-bottom:8px">📅</div><div style="font-size:13px">No hay semanas guardadas aún</div></div></div>
+  </div>
+
+</div>
+
+
+<!-- ══ CALENDARIO ══ -->
+<div class="view" id="v-calendario">
+  <div class="cal-toggle">
+    <button class="cal-toggle-btn active" id="btn-mensual" onclick="calVista('mensual')">📅 Mensual</button>
+    <button class="cal-toggle-btn" id="btn-semanal" onclick="calVista('semanal')">📊 Semanal</button>
+  </div>
+
+  <!-- MENSUAL -->
+  <div id="cal-mensual">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calMes(-1)">‹</button>
+      <div class="cal-nav-title" id="cal-mes-titulo"></div>
+      <button class="cal-nav-btn" onclick="calMes(1)">›</button>
+    </div>
+    <div class="cal-legend">
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(59,130,246,0.4)"></div>1–8 hs</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(239,68,68,0.5)"></div>+8 hs</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--surface2)"></div>Libre</div>
+    </div>
+    <div class="card" style="padding:12px">
+      <div class="cal-grid" id="cal-grid-dow">
+        <div class="cal-dow">DOM</div><div class="cal-dow">LUN</div><div class="cal-dow">MAR</div>
+        <div class="cal-dow">MIÉ</div><div class="cal-dow">JUE</div><div class="cal-dow">VIE</div><div class="cal-dow">SÁB</div>
+      </div>
+      <div class="cal-grid" id="cal-grid-days"></div>
+    </div>
+    <div class="cal-detail" id="cal-day-detail"></div>
+  </div>
+
+  <!-- SEMANAL -->
+  <div id="cal-semanal" style="display:none">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calSem(-1)">‹</button>
+      <div class="cal-nav-title" id="cal-sem-titulo"></div>
+      <button class="cal-nav-btn" onclick="calSem(1)">›</button>
+    </div>
+    <div class="card" style="padding:14px">
+      <div class="cal-week-grid" id="cal-week-grid"></div>
+      <div style="padding-top:10px;border-top:0.5px solid var(--border)">
+        <div class="card-title">Horas por día</div>
+        <div class="cal-bars-wrap" id="cal-bars"></div>
+        <div style="display:flex;gap:6px" id="cal-bars-labels"></div>
+      </div>
+    </div>
+    <div class="card" id="cal-sem-resumen" style="padding:14px"></div>
   </div>
 </div>
 
@@ -167,6 +278,10 @@ textarea.form-input{resize:none;min-height:160px;line-height:1.6;font-size:13px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
     Proyección
   </button>
+  <button class="nav-btn" onclick="goTab('calendario',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Calendario
+  </button>
   <button class="nav-btn" onclick="goTab('agregar',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
     + Semana
@@ -175,15 +290,19 @@ textarea.form-input{resize:none;min-height:160px;line-height:1.6;font-size:13px}
 <div class="toast" id="toast"></div>
 
 <script>
-const CFG={tarifa:14,gastos:1600,trm:3646.58,meta:12000,hsProm:73,semXMes:4.33};
-let TRM=CFG.trm;
-const SEMANAS_BASE=[
-  {id:'s1',label:"Sem 1 — 17–22 May",full:"Semana 1 — Sáb 17 al Vie 22 de Mayo",dias:[
+// ══════════════════════════════════════
+// CONFIG & DATA
+// ══════════════════════════════════════
+const CFG = { tarifa:14, gastos:1600, trm:3646.58, meta:12000, hsProm:73, semXMes:4.33 };
+let TRM = CFG.trm; // will be updated live
+
+const SEMANAS_BASE = [
+  {id:'s1', label:"Sem 1 — 17–22 May", full:"Semana 1 — Sáb 17 al Vie 22 de Mayo", dias:[
     {f:"Mié 20",d:"Miércoles",t:["10:00 pm – 6:00 am"],h:8,l:"Budget LGA"},
     {f:"Jue 21",d:"Jueves",t:["2:00 pm – 10:00 pm","10:00 pm – 6:00 am"],h:16,l:"Avis JFK"},
     {f:"Vie 22",d:"Viernes",t:["2:00 pm – 10:00 pm"],h:8,l:"JFK"}
   ]},
-  {id:'s2',label:"Sem 2 — 23–29 May",full:"Semana 2 — Sáb 23 al Vie 29 de Mayo",dias:[
+  {id:'s2', label:"Sem 2 — 23–29 May", full:"Semana 2 — Sáb 23 al Vie 29 de Mayo", dias:[
     {f:"Sáb 23",d:"Sábado",t:["1:30 pm – 9:30 pm","10:00 pm – 6:00 am"],h:16,l:"Budget JFK"},
     {f:"Dom 24",d:"Domingo",t:["2:00 pm – 10:00 pm"],h:8,l:"Avis JFK"},
     {f:"Lun 25",d:"Lunes",t:["10:00 pm – 6:00 am"],h:8,l:"Budget JFK"},
@@ -192,7 +311,7 @@ const SEMANAS_BASE=[
     {f:"Jue 28",d:"Jueves",t:["2:00 pm – 10:00 pm","10:00 pm – 6:00 am"],h:16,l:"Avis JFK"},
     {f:"Vie 29",d:"Viernes",t:["2:00 pm – 10:00 pm"],h:8,l:"JFK"}
   ]},
-  {id:'s3',label:"Sem 3 — 30 May–5 Jun",full:"Semana 3 — Sáb 30 Mayo al Vie 5 de Junio",dias:[
+  {id:'s3', label:"Sem 3 — 30 May–5 Jun", full:"Semana 3 — Sáb 30 Mayo al Vie 5 de Junio", dias:[
     {f:"Sáb 30",d:"Sábado",t:["6:00 am – 2:00 pm","2:00 pm – 10:00 pm"],h:16,l:"Avis / Budget JFK"},
     {f:"Dom 31",d:"Domingo",t:["7:00 am – 3:00 pm"],h:8,l:"Budget JFK"},
     {f:"Lun 1",d:"Lunes",t:["2:00 pm – 10:00 pm","10:00 pm – 6:00 am"],h:16,l:"Budget JFK"},
@@ -201,7 +320,7 @@ const SEMANAS_BASE=[
     {f:"Jue 4",d:"Jueves",t:["2:00 pm – 10:00 pm"],h:8,l:"Budget JFK"},
     {f:"Vie 5",d:"Viernes",t:["2:00 pm – 10:00 pm","10:00 pm – 6:00 am"],h:16,l:"Avis / Budget JFK"}
   ]},
-  {id:'s4',label:"Sem 4 — 6–12 Jun",full:"Semana 4 — Sáb 6 al Vie 12 de Junio",dias:[
+  {id:'s4', label:"Sem 4 — 6–12 Jun", full:"Semana 4 — Sáb 6 al Vie 12 de Junio", dias:[
     {f:"Sáb 6",d:"Sábado",t:["2:00 pm – 10:00 pm"],h:8,l:"Avis JFK"},
     {f:"Lun 8",d:"Lunes",t:["2:00 pm – 10:00 pm","10:00 pm – 6:00 am"],h:16,l:"Budget JFK"},
     {f:"Mar 9",d:"Martes",t:["2:30 pm – 10:30 pm"],h:8,l:"Avis JFK"},
@@ -210,67 +329,112 @@ const SEMANAS_BASE=[
     {f:"Vie 12",d:"Viernes",t:["2:00 pm – 10:00 pm","10:00 pm – 6:00 am"],h:16,l:"Avis / Budget JFK"}
   ]}
 ];
-let semanasExtra=JSON.parse(localStorage.getItem('semanasExtra')||'[]');
-let pendingWeek=null,selW=0;
-function todasLasSemanas(){return[...SEMANAS_BASE,...semanasExtra]}
-async function fetchTRM(){
-  const badge=document.getElementById('trm-badge');
-  const apis=[
-    async()=>{const r=await fetch('https://api.exchangerate-api.com/v4/latest/USD');const d=await r.json();return d.rates.COP},
-    async()=>{const r=await fetch('https://open.er-api.com/v6/latest/USD');const d=await r.json();return d.rates.COP},
-    async()=>{const r=await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');const d=await r.json();return d.usd.cop}
+
+let semanasExtra = JSON.parse(localStorage.getItem('semanasExtra') || '[]');
+let pendingWeek = null;
+let selW = 0;
+
+function todasLasSemanas() { return [...SEMANAS_BASE, ...semanasExtra]; }
+
+// ══════════════════════════════════════
+// TRM EN TIEMPO REAL
+// ══════════════════════════════════════
+async function fetchTRM() {
+  const badge = document.getElementById('trm-badge');
+  const apis = [
+    async () => {
+      const r = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+      const d = await r.json();
+      return d.rates.COP;
+    },
+    async () => {
+      const r = await fetch('https://open.er-api.com/v6/latest/USD');
+      const d = await r.json();
+      return d.rates.COP;
+    },
+    async () => {
+      // fawazahmed0 via jsdelivr CDN
+      const r = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
+      const d = await r.json();
+      return d.usd.cop;
+    }
   ];
-  for(const api of apis){
-    try{
-      const cop=await api();
-      if(cop&&cop>1000){
-        TRM=Math.round(cop*100)/100;
-        badge.textContent='TRM $'+TRM.toLocaleString('es-CO',{maximumFractionDigits:0});
-        document.getElementById('p-trm').textContent='$'+TRM.toLocaleString('es-CO',{maximumFractionDigits:2});
-        renderResumen();renderProyeccion();return;
+
+  for (const api of apis) {
+    try {
+      const cop = await api();
+      if (cop && cop > 1000) {
+        TRM = Math.round(cop * 100) / 100;
+        badge.textContent = 'TRM $' + TRM.toLocaleString('es-CO', {maximumFractionDigits:0});
+        document.getElementById('p-trm').textContent = '$' + TRM.toLocaleString('es-CO', {maximumFractionDigits:2});
+        renderResumen();
+        renderProyeccion();
+        return;
       }
-    }catch(e){}
+    } catch(e) { /* try next */ }
   }
-  badge.textContent='TRM $'+TRM.toLocaleString('es-CO',{maximumFractionDigits:0})+'*';
-  document.getElementById('p-trm').textContent='$'+TRM.toFixed(2)+' (referencia)';
+  // All failed — use stored or default
+  badge.textContent = 'TRM $' + TRM.toLocaleString('es-CO', {maximumFractionDigits:0}) + '*';
+  document.getElementById('p-trm').textContent = '$' + TRM.toFixed(2) + ' (referencia)';
 }
-const f$=n=>'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-const fCOP=n=>'$'+Math.round(n).toLocaleString('es-CO');
-const sHs=s=>s.dias.reduce((a,d)=>a+d.h,0);
-const ingMes=()=>CFG.tarifa*CFG.hsProm*CFG.semXMes;
-const ahoMes=()=>ingMes()-CFG.gastos;
-const totHs=()=>todasLasSemanas().reduce((a,s)=>a+sHs(s),0);
-function tagClass(l){const lo=(l||'').toLowerCase();return lo.includes('budget')?'tag-budget':lo.includes('avis')?'tag-avis':'tag-other'}
-function renderResumen(){
-  const semanas=todasLasSemanas(),th=totHs(),tu=th*CFG.tarifa,tc=tu*TRM,am=ahoMes();
-  document.getElementById('hdr-sub').textContent=semanas.length+' semanas · '+th+' horas · '+f$(tu);
-  document.getElementById('r-hs').textContent=th;
-  document.getElementById('r-usd').textContent=f$(tu);
-  document.getElementById('r-cop').textContent=fCOP(tc);
-  document.getElementById('r-cop-sub').textContent='TRM: $'+TRM.toLocaleString('es-CO',{maximumFractionDigits:2})+' COP/USD';
-  document.getElementById('r-am').textContent=f$(am);
-  document.getElementById('r-12').textContent=f$(am*12);
-  document.getElementById('r-12cop').textContent=fCOP(am*12*TRM);
-  document.getElementById('r-semanas').innerHTML=semanas.map((s,i)=>`
+
+// ══════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════
+const f$ = n => '$' + n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fCOP = n => '$' + Math.round(n).toLocaleString('es-CO');
+const sHs = s => s.dias.reduce((a,d) => a + d.h, 0);
+const ingMes = () => CFG.tarifa * CFG.hsProm * CFG.semXMes;
+const ahoMes = () => ingMes() - CFG.gastos;
+const totHs = () => todasLasSemanas().reduce((a,s) => a + sHs(s), 0);
+
+function tagClass(l) {
+  const lo = (l||'').toLowerCase();
+  return lo.includes('budget') ? 'tag-budget' : lo.includes('avis') ? 'tag-avis' : 'tag-other';
+}
+
+// ══════════════════════════════════════
+// RENDER RESUMEN
+// ══════════════════════════════════════
+function renderResumen() {
+  const semanas = todasLasSemanas();
+  const th = totHs(), tu = th * CFG.tarifa, tc = tu * TRM, am = ahoMes();
+  document.getElementById('hdr-sub').textContent = `${semanas.length} semanas · ${th} horas · ${f$(tu)}`;
+  document.getElementById('r-hs').textContent = th;
+  document.getElementById('r-usd').textContent = f$(tu);
+  document.getElementById('r-cop').textContent = fCOP(tc);
+  document.getElementById('r-cop-sub').textContent = `TRM: $${TRM.toLocaleString('es-CO',{maximumFractionDigits:2})} COP/USD`;
+  document.getElementById('r-am').textContent = f$(am);
+  document.getElementById('r-12').textContent = f$(am * 12);
+  document.getElementById('r-12cop').textContent = fCOP(am * 12 * TRM);
+  document.getElementById('r-semanas').innerHTML = semanas.map((s,i) => `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;${i<semanas.length-1?'border-bottom:0.5px solid var(--border)':''}">
       <div><div style="font-size:13px;font-weight:600">${s.full||s.label}</div>
       <div style="font-size:11px;color:var(--text3);margin-top:2px">${s.dias.length} días · ${sHs(s)} hs</div></div>
-      <div style="text-align:right"><div style="font-size:16px;font-weight:700;color:var(--green)">${f$(sHs(s)*CFG.tarifa)}</div>
-      <div style="font-size:10px;color:var(--cop)">${fCOP(sHs(s)*CFG.tarifa*TRM)}</div></div>
+      <div style="text-align:right">
+        <div style="font-size:16px;font-weight:700;color:var(--green)">${f$(sHs(s)*CFG.tarifa)}</div>
+        <div style="font-size:10px;color:var(--cop)">${fCOP(sHs(s)*CFG.tarifa*TRM)}</div>
+      </div>
     </div>`).join('');
 }
-function renderDetalle(){
-  const semanas=todasLasSemanas();if(selW>=semanas.length)selW=0;
-  document.getElementById('d-tabs').innerHTML=semanas.map((s,i)=>
+
+// ══════════════════════════════════════
+// RENDER DETALLE
+// ══════════════════════════════════════
+function renderDetalle() {
+  const semanas = todasLasSemanas();
+  if (selW >= semanas.length) selW = 0;
+  document.getElementById('d-tabs').innerHTML = semanas.map((s,i) =>
     `<button class="week-tab${i===selW?' active':''}" onclick="selWeek(${i})">${s.label}</button>`).join('');
-  const s=semanas[selW],hs=sHs(s),usd=hs*CFG.tarifa,desc=s.dias.reduce((a,d)=>a+(24-d.h),0);
-  document.getElementById('d-bar').innerHTML=`
+  const s = semanas[selW];
+  const hs = sHs(s), usd = hs * CFG.tarifa, desc = s.dias.reduce((a,d) => a+(24-d.h), 0);
+  document.getElementById('d-bar').innerHTML = `
     <div><div style="font-size:11px;color:var(--text2)">${s.full||s.label}</div>
     <div style="font-size:19px;font-weight:700;color:var(--accent);margin-top:2px">${hs} hs · ${f$(usd)}</div>
     <div style="font-size:11px;color:var(--cop);font-weight:600">${fCOP(usd*TRM)} COP</div></div>
     <div style="text-align:right"><div style="font-size:11px;color:var(--text3)">${s.dias.length} días</div>
     <div style="font-size:11px;color:var(--text3);margin-top:2px">${desc} hs descanso</div></div>`;
-  document.getElementById('d-dias').innerHTML=s.dias.map(d=>`
+  document.getElementById('d-dias').innerHTML = s.dias.map(d => `
     <div class="day-row">
       <div class="day-dot ${d.h>=16?'dot-red':'dot-blue'}">${d.d.slice(0,3).toUpperCase()}</div>
       <div style="flex:1;min-width:0">
@@ -285,18 +449,24 @@ function renderDetalle(){
       </div>
     </div>`).join('');
 }
-function selWeek(i){selW=i;renderDetalle()}
-function renderProyeccion(){
-  const am=ahoMes(),meses=["Jun","Jul","Ago","Sep","Oct","Nov","Dic","Ene","Feb","Mar","Abr","May"];
-  document.getElementById('p-am').textContent=f$(am);
-  document.getElementById('p-acum1').textContent=f$(am);
-  document.getElementById('p-note').textContent='Meta $12,000 alcanzada en Octubre · Total 12 meses: '+f$(am*12);
-  setTimeout(()=>{document.getElementById('p-bar1').style.width=Math.min(100,am/CFG.meta*100)+'%'},100);
-  let acum=0,html='';
-  for(let i=0;i<12;i++){
-    acum+=am;
-    const pct=Math.min(100,acum/CFG.meta*100),done=acum>=CFG.meta,near=acum>=CFG.meta*.75;
-    html+=`<div class="month-row">
+
+function selWeek(i) { selW = i; renderDetalle(); }
+
+// ══════════════════════════════════════
+// RENDER PROYECCIÓN
+// ══════════════════════════════════════
+function renderProyeccion() {
+  const am = ahoMes();
+  const meses = ["Jun","Jul","Ago","Sep","Oct","Nov","Dic","Ene","Feb","Mar","Abr","May"];
+  document.getElementById('p-am').textContent = f$(am);
+  document.getElementById('p-acum1').textContent = f$(am);
+  document.getElementById('p-note').textContent = `Meta $12,000 alcanzada en Octubre · Total 12 meses: ${f$(am*12)}`;
+  setTimeout(() => { document.getElementById('p-bar1').style.width = Math.min(100, am/CFG.meta*100) + '%'; }, 100);
+  let acum = 0, html = '';
+  for (let i = 0; i < 12; i++) {
+    acum += am;
+    const pct = Math.min(100, acum/CFG.meta*100), done = acum >= CFG.meta, near = acum >= CFG.meta*.75;
+    html += `<div class="month-row">
       <div class="month-num${done?' done':''}">${i+1}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:600">Mes ${i+1} — ${meses[i]}</div>
@@ -310,96 +480,361 @@ function renderProyeccion(){
       </div>
     </div>`;
   }
-  document.getElementById('p-meses').innerHTML=html;
+  document.getElementById('p-meses').innerHTML = html;
 }
-async function interpretarHorario(){
-  const texto=document.getElementById('f-horario').value.trim();
-  const nombre=document.getElementById('f-semname').value.trim();
-  if(!texto){toast('⚠️ Pegá el horario primero','var(--red)');return}
-  const btn=document.getElementById('btn-interpretar');
-  btn.disabled=true;
-  btn.innerHTML='<div class="spinner"></div> Interpretando...';
-  const prompt=`Eres un asistente que extrae datos de horarios de trabajo. El usuario trabaja en aeropuertos JFK y LaGuardia para Budget y Avis. Tarifa $14/hora.\n\nHorario:\n"""\n${texto}\n"""\n\nDevuelve SOLO JSON válido sin texto adicional:\n{\n  "dias": [\n    {\n      "f": "Día Nro",\n      "d": "NombreCompleto",\n      "t": ["HH:MM am/pm – HH:MM am/pm"],\n      "h": número,\n      "l": "Lugar"\n    }\n  ]\n}\n\nReglas: f=nombre+número (ej "Sáb 14"), d=nombre completo, t=array de turnos, h=total horas del día como número, si turno cruza medianoche son 8h, si 2 turnos mismo día agrúpalos con h=suma, l=lugar exacto, 2 empresas mismo día separar con " / "`;
-  try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+
+// ══════════════════════════════════════
+// IA — INTERPRETAR HORARIO
+// ══════════════════════════════════════
+async function interpretarHorario() {
+  const texto = document.getElementById('f-horario').value.trim();
+  const nombre = document.getElementById('f-semname').value.trim();
+  if (!texto) { toast('⚠️ Pegá el horario primero', 'var(--red)'); return; }
+
+  const btn = document.getElementById('btn-interpretar');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Interpretando...';
+
+  const prompt = `Eres un asistente que extrae datos de horarios de trabajo.
+El usuario trabaja en aeropuertos JFK y LaGuardia para las empresas Budget y Avis.
+La tarifa es $14/hora.
+
+Dado este horario:
+"""
+${texto}
+"""
+
+Devuelve SOLO un JSON válido con esta estructura exacta, sin texto adicional:
+{
+  "dias": [
+    {
+      "f": "Día Nro",
+      "d": "NombreCompleto del día en español",
+      "t": ["HH:MM am/pm – HH:MM am/pm"],
+      "h": número_de_horas_como_número,
+      "l": "Lugar exacto"
+    }
+  ]
+}
+
+Reglas:
+- "f" es el nombre del día + número (ej: "Sáb 14")
+- "d" es el nombre completo del día (ej: "Sábado")
+- "t" es array de strings con los turnos en formato "X:XX pm – X:XX pm"
+- "h" es el TOTAL de horas trabajadas ese día (número entero o decimal)
+- Si un turno cruza medianoche (ej: 10pm a 6am), son 8 horas
+- Si hay 2 turnos en un día, agrúpalos en un solo objeto con h = suma total
+- "l" es el lugar (Budget JFK, Avis JFK, Budget LaGuardia, Avis LaGuardia, etc)
+- Si aparecen 2 empresas en el mismo día, escribe ambas separadas por " / "`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
     });
-    const data=await resp.json();
-    let raw=data.content.map(c=>c.text||'').join('');
-    raw=raw.replace(/```json|```/g,'').trim();
-    const parsed=JSON.parse(raw);
-    if(!parsed.dias||!Array.isArray(parsed.dias))throw new Error('Formato inválido');
-    pendingWeek={id:'extra_'+Date.now(),label:nombre||'Nueva semana',full:nombre||'Nueva semana',dias:parsed.dias};
+
+    const data = await resp.json();
+    let raw = data.content.map(c => c.text || '').join('');
+    raw = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(raw);
+
+    if (!parsed.dias || !Array.isArray(parsed.dias)) throw new Error('Formato inválido');
+
+    pendingWeek = {
+      id: 'extra_' + Date.now(),
+      label: nombre || 'Nueva semana',
+      full: nombre || 'Nueva semana',
+      dias: parsed.dias
+    };
+
     mostrarPreview(pendingWeek);
-  }catch(e){
-    toast('⚠️ Error al interpretar. Intenta de nuevo.','var(--red)');
-  }finally{
-    btn.disabled=false;
-    btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M22 2 12 12"/><path d="m17 2 5 5-5 5"/></svg> Interpretar con IA';
+
+  } catch(e) {
+    toast('⚠️ Error al interpretar. Intenta de nuevo.', 'var(--red)');
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M22 2 12 12"/><path d="m17 2 5 5-5 5"/></svg> Interpretar con IA';
   }
 }
-function mostrarPreview(semana){
-  const totalHs=sHs(semana),totalUSD=totalHs*CFG.tarifa;
-  let html=`<div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:12px">
-    <div><div style="font-size:13px;font-weight:600">${semana.full}</div>
-    <div style="font-size:11px;color:var(--text3);margin-top:2px">${semana.dias.length} días interpretados</div></div>
-    <div style="text-align:right"><div style="font-size:16px;font-weight:700;color:var(--green)">${totalHs} hs · ${f$(totalUSD)}</div>
-    <div style="font-size:11px;color:var(--cop)">${fCOP(totalUSD*TRM)} COP</div></div></div>`;
-  semana.dias.forEach(d=>{
-    html+=`<div class="ai-day"><div>
-      <div style="font-size:13px;font-weight:600">${d.d} ${d.f}</div>
-      <div style="font-size:11px;color:var(--text2);margin-top:2px">${d.t.join(' · ')}</div>
-      <div style="margin-top:3px"><span class="tag ${tagClass(d.l)}">${d.l}</span></div>
-    </div><div style="text-align:right;flex-shrink:0;margin-left:12px">
-      <div style="font-size:16px;font-weight:700;color:var(--accent)">${d.h} hs</div>
-      <div style="font-size:11px;color:var(--green)">${f$(d.h*CFG.tarifa)}</div>
-    </div></div>`;
+
+function mostrarPreview(semana) {
+  const totalHs = sHs(semana);
+  const totalUSD = totalHs * CFG.tarifa;
+  let html = `
+    <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:12px">
+      <div><div style="font-size:13px;font-weight:600">${semana.full}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px">${semana.dias.length} días interpretados</div></div>
+      <div style="text-align:right">
+        <div style="font-size:16px;font-weight:700;color:var(--green)">${totalHs} hs · ${f$(totalUSD)}</div>
+        <div style="font-size:11px;color:var(--cop)">${fCOP(totalUSD*TRM)} COP</div>
+      </div>
+    </div>`;
+
+  semana.dias.forEach(d => {
+    html += `<div class="ai-day">
+      <div>
+        <div style="font-size:13px;font-weight:600">${d.d} ${d.f}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">${d.t.join(' · ')}</div>
+        <div style="margin-top:3px"><span class="tag ${tagClass(d.l)}">${d.l}</span></div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;margin-left:12px">
+        <div style="font-size:16px;font-weight:700;color:var(--accent)">${d.h} hs</div>
+        <div style="font-size:11px;color:var(--green)">${f$(d.h*CFG.tarifa)}</div>
+      </div>
+    </div>`;
   });
-  document.getElementById('ai-result-content').innerHTML=html;
-  document.getElementById('ai-preview').style.display='block';
-  document.getElementById('ai-preview').scrollIntoView({behavior:'smooth'});
+
+  document.getElementById('ai-result-content').innerHTML = html;
+  document.getElementById('ai-preview').style.display = 'block';
+  document.getElementById('ai-preview').scrollIntoView({ behavior: 'smooth' });
 }
-function cancelarPreview(){document.getElementById('ai-preview').style.display='none';pendingWeek=null}
-function confirmarSemana(){
-  if(!pendingWeek)return;
+
+function cancelarPreview() {
+  document.getElementById('ai-preview').style.display = 'none';
+  pendingWeek = null;
+}
+
+function confirmarSemana() {
+  if (!pendingWeek) return;
   semanasExtra.push(pendingWeek);
-  localStorage.setItem('semanasExtra',JSON.stringify(semanasExtra));
-  renderSemLista();renderResumen();cancelarPreview();
-  document.getElementById('f-horario').value='';
-  document.getElementById('f-semname').value='';
+  localStorage.setItem('semanasExtra', JSON.stringify(semanasExtra));
+  renderSemLista();
+  renderResumen();
+  cancelarPreview();
+  document.getElementById('f-horario').value = '';
+  document.getElementById('f-semname').value = '';
   toast('✓ Semana guardada correctamente');
 }
-function renderSemLista(){
-  document.getElementById('sem-count').textContent=semanasExtra.length;
-  const c=document.getElementById('sem-lista');
-  if(!semanasExtra.length){c.innerHTML='<div class="empty"><div style="font-size:32px;margin-bottom:8px">📅</div><div style="font-size:13px">No hay semanas guardadas aún</div></div>';return}
-  c.innerHTML=semanasExtra.map((s,i)=>`
+
+// ══════════════════════════════════════
+// LISTA DE SEMANAS GUARDADAS
+// ══════════════════════════════════════
+function renderSemLista() {
+  document.getElementById('sem-count').textContent = semanasExtra.length;
+  const c = document.getElementById('sem-lista');
+  if (!semanasExtra.length) {
+    c.innerHTML = '<div class="empty"><div style="font-size:32px;margin-bottom:8px">📅</div><div style="font-size:13px">No hay semanas guardadas aún</div></div>';
+    return;
+  }
+  c.innerHTML = semanasExtra.map((s,i) => `
     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:${i<semanasExtra.length-1?'0.5px solid var(--border)':'none'}">
-      <div><div style="font-size:13px;font-weight:600">${s.full||s.label}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:2px">${s.dias.length} días · ${sHs(s)} hs · ${f$(sHs(s)*CFG.tarifa)}</div></div>
+      <div>
+        <div style="font-size:13px;font-weight:600">${s.full||s.label}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${s.dias.length} días · ${sHs(s)} hs · ${f$(sHs(s)*CFG.tarifa)}</div>
+      </div>
       <button class="btn-danger" onclick="eliminarSem('${s.id}')">Borrar</button>
     </div>`).join('');
 }
-function eliminarSem(id){
-  semanasExtra=semanasExtra.filter(s=>s.id!==id);
-  localStorage.setItem('semanasExtra',JSON.stringify(semanasExtra));
-  renderSemLista();renderResumen();toast('Semana eliminada');
+
+function eliminarSem(id) {
+  semanasExtra = semanasExtra.filter(s => s.id !== id);
+  localStorage.setItem('semanasExtra', JSON.stringify(semanasExtra));
+  renderSemLista();
+  renderResumen();
+  toast('Semana eliminada');
 }
-function goTab(name,btn){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('v-'+name).classList.add('active');btn.classList.add('active');
-  if(name==='detalle')renderDetalle();
-  if(name==='proyeccion')renderProyeccion();
-  if(name==='resumen')renderResumen();
+
+// ══════════════════════════════════════
+// NAV & TOAST
+// ══════════════════════════════════════
+function goTab(name, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('v-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'detalle') renderDetalle();
+  if (name === 'calendario') initCalendario();
+  if (name === 'calendario') initCalendario();
+  if (name === 'proyeccion') renderProyeccion();
+  if (name === 'resumen') renderResumen();
 }
-function toast(msg,bg){
-  const t=document.getElementById('toast');t.textContent=msg;t.style.background=bg||'var(--green)';
-  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);
+
+function toast(msg, bg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.background = bg || 'var(--green)';
+  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2800);
 }
-renderResumen();renderSemLista();fetchTRM();
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+renderResumen();
+renderSemLista();
+fetchTRM();
+
+// ══════════════════════════════════════
+// CALENDARIO
+// ══════════════════════════════════════
+let calMesActual = new Date(2025, 4, 1);
+let calSemActual = 0;
+let calVistaActual = 'mensual';
+
+function buildDayMap() {
+  const map = {};
+  todasLasSemanas().forEach(sem => {
+    sem.dias.forEach(d => {
+      const parts = d.f.trim().split(/\s+/);
+      if (parts.length < 2) return;
+      const dayNum = parseInt(parts[parts.length - 1]);
+      if (isNaN(dayNum)) return;
+      const labelStr = (sem.full || sem.label || '').toLowerCase();
+      let mes = 4, anio = 2025;
+      if (labelStr.includes('junio') || labelStr.includes(' jun')) mes = 5;
+      else if (labelStr.includes('julio') || labelStr.includes(' jul')) mes = 6;
+      // Fix: sem3 has days in both may and jun
+      if (mes === 4 && labelStr.includes('jun') && dayNum <= 6) {
+        const dNom = (d.d || '').toLowerCase().slice(0,3);
+        if (['lun','mar','mié','mie','jue','vie'].includes(dNom)) mes = 5;
+      }
+      const key = `${anio}-${String(mes+1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
+      if (!map[key]) map[key] = { horas:0, turnos:[], lugar:[] };
+      map[key].horas += d.h;
+      map[key].turnos.push(...d.t);
+      if (d.l && !map[key].lugar.includes(d.l)) map[key].lugar.push(d.l);
+    });
+  });
+  return map;
+}
+
+function calVista(v) {
+  calVistaActual = v;
+  document.getElementById('cal-mensual').style.display = v === 'mensual' ? 'block' : 'none';
+  document.getElementById('cal-semanal').style.display = v === 'semanal' ? 'block' : 'none';
+  document.getElementById('btn-mensual').classList.toggle('active', v === 'mensual');
+  document.getElementById('btn-semanal').classList.toggle('active', v === 'semanal');
+  if (v === 'mensual') renderCalMensual();
+  else renderCalSemanal();
+}
+
+function calMes(dir) {
+  calMesActual = new Date(calMesActual.getFullYear(), calMesActual.getMonth() + dir, 1);
+  renderCalMensual();
+}
+
+function calSem(dir) {
+  const sems = todasLasSemanas();
+  calSemActual = Math.max(0, Math.min(sems.length - 1, calSemActual + dir));
+  renderCalSemanal();
+}
+
+function renderCalMensual() {
+  const map = buildDayMap();
+  const y = calMesActual.getFullYear(), m = calMesActual.getMonth();
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('cal-mes-titulo').textContent = meses[m] + ' ' + y;
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  let html = '';
+  for (let i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const info = map[key];
+    const hs = info ? info.horas : 0;
+    const cls = hs >= 16 ? 'heavy-work' : hs > 0 ? 'has-work' : '';
+    const dotsHtml = info ? '<div class="cal-day-dot">' +
+      info.lugar.slice(0,2).map(l => `<div class="cal-dot" style="background:${l.toLowerCase().includes('budget')?'#60a5fa':l.toLowerCase().includes('avis')?'#34d399':'#94a3b8'}"></div>`).join('') +
+      '</div>' : '';
+    html += `<div class="cal-day ${cls}" onclick="calDayClick('${key}',${d})">
+      <div class="cal-day-num">${d}</div>
+      ${hs > 0 ? `<div class="cal-day-hs">${hs}h</div>` : ''}
+      ${dotsHtml}
+    </div>`;
+  }
+  document.getElementById('cal-grid-days').innerHTML = html;
+  document.getElementById('cal-day-detail').classList.remove('show');
+}
+
+function calDayClick(key, d) {
+  const map = buildDayMap();
+  const info = map[key];
+  const detail = document.getElementById('cal-day-detail');
+  if (!info) {
+    detail.innerHTML = `<div style="text-align:center;padding:10px;color:var(--text3);font-size:13px">Dia libre</div>`;
+    detail.classList.add('show');
+    return;
+  }
+  const lugaresHtml = info.lugar.map(l => `<span class="tag ${l.toLowerCase().includes('budget')?'tag-budget':l.toLowerCase().includes('avis')?'tag-avis':'tag-other'}">${l}</span>`).join(' ');
+  detail.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:15px;font-weight:700">Dia ${d}</div>
+      <div style="font-size:20px;font-weight:700;color:${info.horas>=16?'var(--red)':'var(--accent)}'}">${info.horas} hs</div>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:8px">${info.turnos.join('  -  ')}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>${lugaresHtml}</div>
+      <div style="font-size:13px;font-weight:600;color:var(--green)">${f$(info.horas*CFG.tarifa)}</div>
+    </div>`;
+  detail.classList.add('show');
+}
+
+function renderCalSemanal() {
+  const sems = todasLasSemanas();
+  if (!sems.length) return;
+  const sem = sems[calSemActual];
+  document.getElementById('cal-sem-titulo').textContent = sem.label;
+  const ORDER = ['Sabado','Domingo','Lunes','Martes','Miercoles','Jueves','Viernes'];
+  const ORDER2 = ['Sábado','Domingo','Lunes','Martes','Miércoles','Jueves','Viernes'];
+  const SHORT  = ['Sáb','Dom','Lun','Mar','Mié','Jue','Vie'];
+  const maxHs = 16;
+  let weekHtml = '', barsHtml = '', barsLabels = '';
+  ORDER2.forEach((dName, idx) => {
+    const dia = sem.dias.find(d => d.d === dName);
+    const hs = dia ? dia.h : 0;
+    const pct = Math.round((hs / maxHs) * 100);
+    const color = hs >= 16 ? 'var(--red)' : hs > 0 ? 'var(--accent)' : 'var(--surface2)';
+    const dateNum = dia ? dia.f.split(' ').pop() : '--';
+    weekHtml += `<div class="cal-week-col">
+      <div class="cal-week-dow">${SHORT[idx]}</div>
+      <div class="cal-week-date ${hs>=16?'heavy':hs>0?'has-work':'empty'}">${dateNum}</div>
+      <div style="font-size:9px;font-weight:700;color:${hs>0?color:'var(--text3)'};">${hs > 0 ? hs+'h' : ''}</div>
+      <div style="font-size:8px;color:var(--text3)">${dia ? dia.t.length+'T' : ''}</div>
+    </div>`;
+    barsHtml += `<div class="cal-bar-col">
+      <div class="cal-bar-val">${hs > 0 ? hs : ''}</div>
+      <div style="flex:1;width:100%;display:flex;align-items:flex-end">
+        <div class="cal-bar" style="height:${pct}%;background:${color};width:100%"></div>
+      </div>
+    </div>`;
+    barsLabels += `<div style="flex:1;text-align:center;font-size:9px;color:var(--text3)">${SHORT[idx]}</div>`;
+  });
+  document.getElementById('cal-week-grid').innerHTML = weekHtml;
+  document.getElementById('cal-bars').innerHTML = barsHtml;
+  document.getElementById('cal-bars-labels').innerHTML = barsLabels;
+  const totalHs = sHs(sem), totalUSD = totalHs * CFG.tarifa;
+  const totalTurnos = sem.dias.reduce((a,d) => a + d.t.length, 0);
+  document.getElementById('cal-sem-resumen').innerHTML = `
+    <div class="card-title">Resumen de la semana</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:var(--text2);margin-bottom:4px">Horas totales</div>
+        <div style="font-size:22px;font-weight:700;color:var(--accent)">${totalHs}</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:var(--text2);margin-bottom:4px">Turnos</div>
+        <div style="font-size:22px;font-weight:700;color:var(--yellow)">${totalTurnos}</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:var(--text2);margin-bottom:4px">Dias trabajados</div>
+        <div style="font-size:22px;font-weight:700;color:var(--cop)">${sem.dias.length}</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:var(--text2);margin-bottom:4px">Ganancia</div>
+        <div style="font-size:18px;font-weight:700;color:var(--green)">${f$(totalUSD)}</div>
+      </div>
+    </div>`;
+}
+
+function initCalendario() {
+  if (calVistaActual === 'mensual') renderCalMensual();
+  else renderCalSemanal();
+}
+
 </script>
 </body>
 </html>
