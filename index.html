@@ -1,0 +1,320 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mis Turnos">
+<title>Mis Turnos</title>
+<style>
+:root{--bg:#0a0f1e;--surface:#111827;--surface2:#1a2235;--border:#1f2e4a;--accent:#3b82f6;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--cop:#8b5cf6;--text:#f1f5f9;--text2:#94a3b8;--text3:#475569}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:90px}
+.header{position:sticky;top:0;z-index:100;background:rgba(10,15,30,0.92);backdrop-filter:blur(20px);padding:52px 18px 12px;border-bottom:0.5px solid var(--border)}
+.header h1{font-size:22px;font-weight:700;letter-spacing:-0.5px}.header h1 span{color:var(--accent)}
+.header-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(17,24,39,0.97);backdrop-filter:blur(20px);border-top:0.5px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,10px)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0 6px;gap:3px;border:none;background:none;color:var(--text3);font-size:10px;font-family:inherit;cursor:pointer}
+.nav-btn.active{color:var(--accent)}.nav-btn svg{width:22px;height:22px}
+.view{display:none;padding:14px 16px}.view.active{display:block}
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
+.card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;padding:14px 12px}
+.stat-label{font-size:10px;color:var(--text2);margin-bottom:4px}
+.stat-value{font-size:21px;font-weight:700;letter-spacing:-0.5px}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.full{grid-column:1/-1}
+.blue{color:var(--accent)}.green{color:var(--green)}.yellow{color:var(--yellow)}.purple{color:var(--cop)}
+.week-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+.week-tabs::-webkit-scrollbar{display:none}
+.week-tab{flex-shrink:0;padding:7px 13px;border-radius:20px;border:0.5px solid var(--border);background:var(--surface2);color:var(--text2);font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap}
+.week-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.week-bar{background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(99,102,241,.1));border:0.5px solid rgba(59,130,246,.3);border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.day-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:0.5px solid var(--border)}
+.day-row:last-child{border-bottom:none}
+.day-dot{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.dot-blue{background:rgba(59,130,246,.15);color:var(--accent)}.dot-red{background:rgba(239,68,68,.15);color:var(--red)}
+.tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px}
+.tag-budget{background:rgba(59,130,246,.15);color:#60a5fa}.tag-avis{background:rgba(16,185,129,.15);color:#34d399}.tag-other{background:rgba(148,163,184,.15);color:var(--text2)}
+.prog-wrap{background:var(--surface2);border-radius:6px;height:7px;overflow:hidden;margin-top:5px}
+.prog-bar{height:100%;border-radius:6px;transition:width .7s ease}
+.month-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.month-row:last-child{border-bottom:none}
+.month-num{width:28px;height:28px;border-radius:8px;flex-shrink:0;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text2)}
+.month-num.done{background:rgba(16,185,129,.2);color:var(--green)}
+.badge-meta{display:inline-flex;align-items:center;background:rgba(16,185,129,.2);color:var(--green);font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;text-transform:uppercase;margin-top:4px}
+.form-label{font-size:11px;color:var(--text2);margin-bottom:6px;display:block;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.form-input{width:100%;background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;padding:11px 13px;color:var(--text);font-size:15px;font-family:inherit;outline:none;-webkit-appearance:none;margin-bottom:14px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-primary{width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:15px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:4px}
+.btn-danger{background:rgba(239,68,68,.12);color:var(--red);border:0.5px solid rgba(239,68,68,.3);border-radius:8px;padding:6px 11px;font-size:12px;font-family:inherit;cursor:pointer}
+.empty{text-align:center;padding:30px 0;color:var(--text3)}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--green);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:200;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Mis <span>Turnos</span></h1>
+  <div class="header-sub" id="hdr-sub"></div>
+</div>
+
+<div class="view active" id="v-resumen">
+  <div class="grid2">
+    <div class="stat"><div class="stat-label">Total horas</div><div class="stat-value blue" id="r-hs"></div><div class="stat-sub">todas las semanas</div></div>
+    <div class="stat"><div class="stat-label">Total USD</div><div class="stat-value green" id="r-usd"></div><div class="stat-sub">a $14/hora</div></div>
+    <div class="stat full"><div class="stat-label">Total pesos colombianos</div><div class="stat-value purple" id="r-cop" style="font-size:17px"></div><div class="stat-sub">TRM: $3,646.58 COP/USD</div></div>
+  </div>
+  <div class="card"><div class="card-title">Por semana</div><div id="r-semanas"></div></div>
+  <div class="card">
+    <div class="card-title">Proyección ahorro 12 meses</div>
+    <div class="grid2">
+      <div class="stat"><div class="stat-label">Ahorro/mes</div><div class="stat-value green" id="r-am"></div><div class="stat-sub">ingreso − gastos</div></div>
+      <div class="stat"><div class="stat-label">En 12 meses</div><div class="stat-value yellow" id="r-12"></div><div class="stat-sub">USD</div></div>
+      <div class="stat full"><div class="stat-label">En 12 meses (COP)</div><div class="stat-value purple" id="r-12cop" style="font-size:17px"></div><div class="stat-sub">pesos colombianos</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="view" id="v-detalle">
+  <div class="week-tabs" id="d-tabs"></div>
+  <div class="week-bar" id="d-bar"></div>
+  <div class="card" style="padding:0 16px"><div id="d-dias"></div></div>
+</div>
+
+<div class="view" id="v-proyeccion">
+  <div class="card">
+    <div class="card-title">Configuración</div>
+    <div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:0.5px solid var(--border)"><span style="font-size:14px">Tarifa/hora</span><span style="font-size:14px;font-weight:600;color:var(--accent)">$14.00 USD</span></div>
+    <div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:0.5px solid var(--border)"><span style="font-size:14px">Gastos mensuales</span><span style="font-size:14px;font-weight:600;color:var(--accent)">$1,600.00 USD</span></div>
+    <div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:0.5px solid var(--border)"><span style="font-size:14px">TRM</span><span style="font-size:14px;font-weight:600;color:var(--accent)">$3,646.58 COP/USD</span></div>
+    <div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:0.5px solid var(--border)"><span style="font-size:14px">Meta</span><span style="font-size:14px;font-weight:600;color:var(--accent)">$12,000 USD</span></div>
+    <div style="display:flex;justify-content:space-between;padding:11px 0"><span style="font-size:14px">Ahorro mensual neto</span><span style="font-size:14px;font-weight:600;color:var(--green)" id="p-am"></span></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Meta $12,000 — alcanzada en mes 5</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px"><span style="font-size:13px;color:var(--text2)">Mes 1 acumulado</span><span style="font-size:20px;font-weight:700;color:var(--green)" id="p-acum1"></span></div>
+    <div class="prog-wrap"><div class="prog-bar" id="p-bar1" style="background:linear-gradient(90deg,var(--green),var(--accent));width:0%"></div></div>
+    <div style="font-size:11px;color:var(--text3);margin-top:6px" id="p-note"></div>
+  </div>
+  <div class="card" style="padding:0 16px">
+    <div style="padding:14px 0 6px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text2)">Mes a mes</div>
+    <div id="p-meses"></div>
+  </div>
+</div>
+
+<div class="view" id="v-agregar">
+  <div class="card">
+    <div class="card-title">Nuevo turno</div>
+    <label class="form-label">Fecha</label>
+    <input type="date" class="form-input" id="f-fecha">
+    <div class="form-row">
+      <div><label class="form-label">Hora inicio</label><input type="time" class="form-input" id="f-ini"></div>
+      <div><label class="form-label">Hora fin</label><input type="time" class="form-input" id="f-fin"></div>
+    </div>
+    <label class="form-label">Lugar</label>
+    <select class="form-input" id="f-lugar">
+      <option>Budget JFK</option><option>Avis JFK</option><option>Budget LaGuardia</option><option>Avis LaGuardia</option><option>JFK</option><option>Otro</option>
+    </select>
+    <button class="btn-primary" onclick="agregar()">Agregar turno</button>
+  </div>
+  <div class="card"><div class="card-title">Turnos agregados</div><div id="a-lista"><div class="empty"><div style="font-size:36px;margin-bottom:10px">📋</div><div style="font-size:14px">No hay turnos aún</div></div></div></div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="goTab('resumen',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Resumen
+  </button>
+  <button class="nav-btn" onclick="goTab('detalle',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+    Detalle
+  </button>
+  <button class="nav-btn" onclick="goTab('proyeccion',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+    Proyección
+  </button>
+  <button class="nav-btn" onclick="goTab('agregar',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Agregar
+  </button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+const CFG={tarifa:14,gastos:1600,trm:3646.58,meta:12000,hsProm:73,semXMes:4.33};
+const SEMANAS=[
+  {id:1,label:"Sem 1 — 17–22 May",full:"Semana 1 — Sáb 17 al Vie 22 de Mayo",dias:[
+    {f:"Mié 20",d:"Miércoles",t:["10:00 pm – 6:00 am"],h:8,l:"Budget LGA"},
+    {f:"Jue 21",d:"Jueves",t:["2:00 pm – 10:00 pm","10:00 pm – 6:00 am"],h:16,l:"Avis JFK"},
+    {f:"Vie 22",d:"Viernes",t:["2:00 pm – 10:00 pm"],h:8,l:"JFK"}
+  ]},
+  {id:2,label:"Sem 2 — 23–29 May",full:"Semana 2 — Sáb 23 al Vie 29 de Mayo",dias:[
+    {f:"Sáb 23",d:"Sábado",t:["1:30 pm – 9:30 pm","10:00 pm – 6:00 am"],h:16,l:"Budget JFK"},
+    {f:"Dom 24",d:"Domingo",t:["2:00 pm – 10:00 pm"],h:8,l:"Avis JFK"},
+    {f:"Lun 25",d:"Lunes",t:["10:00 pm – 6:00 am"],h:8,l:"Budget JFK"},
+    {f:"Mar 26",d:"Martes",t:["2:00 pm – 10:00 pm","10:00 pm – 6:00 am"],h:16,l:"Avis JFK"},
+    {f:"Mié 27",d:"Miércoles",t:["10:00 pm – 6:00 am"],h:8,l:"Budget LGA"},
+    {f:"Jue 28",d:"Jueves",t:["2:00 pm – 10:00 pm","10:00 pm – 6:00 am"],h:16,l:"Avis JFK"},
+    {f:"Vie 29",d:"Viernes",t:["2:00 pm – 10:00 pm"],h:8,l:"JFK"}
+  ]},
+  {id:3,label:"Sem 3 — 30 May–5 Jun",full:"Semana 3 — Sáb 30 Mayo al Vie 5 de Junio",dias:[
+    {f:"Sáb 30",d:"Sábado",t:["6:00 am – 2:00 pm","2:00 pm – 10:00 pm"],h:16,l:"Avis / Budget JFK"},
+    {f:"Dom 31",d:"Domingo",t:["7:00 am – 3:00 pm"],h:8,l:"Budget JFK"},
+    {f:"Lun 1",d:"Lunes",t:["2:00 pm – 10:00 pm","10:00 pm – 6:00 am"],h:16,l:"Budget JFK"},
+    {f:"Mar 2",d:"Martes",t:["12:30 pm – 8:30 pm"],h:8,l:"Budget JFK"},
+    {f:"Mié 3",d:"Miércoles",t:["7:00 am – 3:00 pm","3:00 pm – 11:00 pm"],h:16,l:"Avis / Budget JFK"},
+    {f:"Jue 4",d:"Jueves",t:["2:00 pm – 10:00 pm"],h:8,l:"Budget JFK"},
+    {f:"Vie 5",d:"Viernes",t:["2:00 pm – 10:00 pm","10:00 pm – 6:00 am"],h:16,l:"Avis / Budget JFK"}
+  ]},
+  {id:4,label:"Sem 4 — 6–12 Jun",full:"Semana 4 — Sáb 6 al Vie 12 de Junio",dias:[
+    {f:"Sáb 6",d:"Sábado",t:["2:00 pm – 10:00 pm"],h:8,l:"Avis JFK"},
+    {f:"Lun 8",d:"Lunes",t:["2:00 pm – 10:00 pm","10:00 pm – 6:00 am"],h:16,l:"Budget JFK"},
+    {f:"Mar 9",d:"Martes",t:["2:30 pm – 10:30 pm"],h:8,l:"Avis JFK"},
+    {f:"Mié 10",d:"Miércoles",t:["3:00 pm – 11:00 pm","11:00 pm – 7:00 am"],h:16,l:"Avis / Budget JFK"},
+    {f:"Jue 11",d:"Jueves",t:["4:00 pm – 12:00 am"],h:8,l:"Budget JFK"},
+    {f:"Vie 12",d:"Viernes",t:["2:00 pm – 10:00 pm","10:00 pm – 6:00 am"],h:16,l:"Avis / Budget JFK"}
+  ]}
+];
+
+let extras=JSON.parse(localStorage.getItem('extras')||'[]');
+let selW=0;
+
+const f$=n=>'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fCOP=n=>'$'+Math.round(n).toLocaleString('es-CO');
+const sHs=s=>s.dias.reduce((a,d)=>a+d.h,0);
+const ingMes=()=>CFG.tarifa*CFG.hsProm*CFG.semXMes;
+const ahoMes=()=>ingMes()-CFG.gastos;
+
+function totHs(){return SEMANAS.reduce((a,s)=>a+sHs(s),0)+extras.reduce((a,t)=>a+t.h,0)}
+
+function renderResumen(){
+  const th=totHs(),tu=th*CFG.tarifa,tc=tu*CFG.trm,am=ahoMes();
+  document.getElementById('hdr-sub').textContent=`4 semanas · ${th} horas · ${f$(tu)}`;
+  document.getElementById('r-hs').textContent=th;
+  document.getElementById('r-usd').textContent=f$(tu);
+  document.getElementById('r-cop').textContent=fCOP(tc);
+  document.getElementById('r-am').textContent=f$(am);
+  document.getElementById('r-12').textContent=f$(am*12);
+  document.getElementById('r-12cop').textContent=fCOP(am*12*CFG.trm);
+  document.getElementById('r-semanas').innerHTML=SEMANAS.map((s,i)=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;${i<SEMANAS.length-1?'border-bottom:0.5px solid var(--border)':''}">
+      <div><div style="font-size:13px;font-weight:600">${s.full}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${s.dias.length} días · ${sHs(s)} hs</div></div>
+      <div style="text-align:right"><div style="font-size:16px;font-weight:700;color:var(--green)">${f$(sHs(s)*CFG.tarifa)}</div><div style="font-size:10px;color:var(--cop)">${fCOP(sHs(s)*CFG.tarifa*CFG.trm)}</div></div>
+    </div>`).join('');
+}
+
+function renderDetalle(){
+  document.getElementById('d-tabs').innerHTML=SEMANAS.map((s,i)=>
+    `<button class="week-tab${i===selW?' active':''}" onclick="selWeek(${i})">${s.label}</button>`).join('');
+  const s=SEMANAS[selW],hs=sHs(s),usd=hs*CFG.tarifa,desc=s.dias.reduce((a,d)=>a+(24-d.h),0);
+  document.getElementById('d-bar').innerHTML=`
+    <div><div style="font-size:11px;color:var(--text2)">${s.full}</div>
+    <div style="font-size:19px;font-weight:700;color:var(--accent);margin-top:2px">${hs} hs · ${f$(usd)}</div>
+    <div style="font-size:11px;color:var(--cop);font-weight:600">${fCOP(usd*CFG.trm)} COP</div></div>
+    <div style="text-align:right"><div style="font-size:11px;color:var(--text3)">${s.dias.length} días</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${desc} hs descanso</div></div>`;
+  document.getElementById('d-dias').innerHTML=s.dias.map((d,i)=>{
+    const tc=d.l.toLowerCase().includes('budget')?'tag-budget':d.l.toLowerCase().includes('avis')?'tag-avis':'tag-other';
+    return`<div class="day-row">
+      <div class="day-dot ${d.h>=16?'dot-red':'dot-blue'}">${d.d.slice(0,3).toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:600">${d.d} <span style="font-size:12px;color:var(--text2);font-weight:400">${d.f}</span></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px;line-height:1.7">${d.t.join('<br>')}</div>
+        <div style="margin-top:3px"><span class="tag ${tc}">${d.l}</span></div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:18px;font-weight:700;color:var(--accent)">${d.h}</div>
+        <div style="font-size:10px;color:var(--text3)">horas</div>
+        <div style="font-size:12px;font-weight:600;color:var(--green);margin-top:2px">${f$(d.h*CFG.tarifa)}</div>
+      </div>
+    </div>`;}).join('');
+}
+
+function selWeek(i){selW=i;renderDetalle();}
+
+function renderProyeccion(){
+  const am=ahoMes(),meses=["Jun","Jul","Ago","Sep","Oct","Nov","Dic","Ene","Feb","Mar","Abr","May"];
+  document.getElementById('p-am').textContent=f$(am);
+  document.getElementById('p-acum1').textContent=f$(am);
+  document.getElementById('p-note').textContent=`Meta $12,000 alcanzada en Octubre · Ahorro total 12 meses: ${f$(am*12)}`;
+  setTimeout(()=>{document.getElementById('p-bar1').style.width=Math.min(100,am/CFG.meta*100)+'%';},100);
+  let acum=0,html='';
+  for(let i=0;i<12;i++){
+    acum+=am;
+    const pct=Math.min(100,acum/CFG.meta*100),done=acum>=CFG.meta,near=acum>=CFG.meta*.75;
+    html+=`<div class="month-row">
+      <div class="month-num${done?' done':''}">${i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600">Mes ${i+1} — ${meses[i]}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:1px">Acum: ${f$(acum)}</div>
+        <div class="prog-wrap"><div class="prog-bar" style="background:${done?'var(--green)':near?'var(--yellow)':'var(--accent)'};width:${pct}%"></div></div>
+        ${done?'<span class="badge-meta">✓ Meta alcanzada</span>':''}
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:14px;font-weight:700;color:var(--green)">${f$(am)}</div>
+        <div style="font-size:10px;color:var(--cop);margin-top:1px">${fCOP(am*CFG.trm)}</div>
+      </div>
+    </div>`;
+  }
+  document.getElementById('p-meses').innerHTML=html;
+}
+
+function renderExtras(){
+  const c=document.getElementById('a-lista');
+  if(!extras.length){c.innerHTML='<div class="empty"><div style="font-size:36px;margin-bottom:10px">📋</div><div style="font-size:14px">No hay turnos aún</div></div>';return;}
+  c.innerHTML=extras.map(t=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)">
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">${t.dia} ${t.fecha}</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:2px">${t.turno} · ${t.l}</div>
+      <div style="font-size:11px;color:var(--green);margin-top:2px">${t.h} hs · ${f$(t.h*CFG.tarifa)}</div></div>
+      <button class="btn-danger" onclick="eliminar(${t.id})">Eliminar</button>
+    </div>`).join('');
+}
+
+function agregar(){
+  const fecha=document.getElementById('f-fecha').value;
+  const ini=document.getElementById('f-ini').value;
+  const fin=document.getElementById('f-fin').value;
+  const lugar=document.getElementById('f-lugar').value;
+  if(!fecha||!ini||!fin){toast('⚠️ Completa todos los campos','var(--red)');return;}
+  const[h1,m1]=ini.split(':').map(Number),[h2,m2]=fin.split(':').map(Number);
+  let mins=(h2*60+m2)-(h1*60+m1);if(mins<=0)mins+=1440;
+  const h=Math.round(mins/60*10)/10;
+  const fd=new Date(fecha+'T12:00:00');
+  const ds=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const t={id:Date.now(),fecha,h,l:lugar,dia:ds[fd.getDay()],turno:`${ini} – ${fin}`};
+  extras.push(t);localStorage.setItem('extras',JSON.stringify(extras));
+  renderExtras();renderResumen();
+  toast(`✓ Agregado — ${f$(h*CFG.tarifa)}`);
+  document.getElementById('f-ini').value='';document.getElementById('f-fin').value='';
+}
+
+function eliminar(id){
+  extras=extras.filter(t=>t.id!==id);
+  localStorage.setItem('extras',JSON.stringify(extras));
+  renderExtras();renderResumen();
+}
+
+function toast(msg,bg){
+  const t=document.getElementById('toast');t.textContent=msg;t.style.background=bg||'var(--green)';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function goTab(name,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('v-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='detalle')renderDetalle();
+  if(name==='proyeccion')renderProyeccion();
+  if(name==='resumen')renderResumen();
+}
+
+document.getElementById('f-fecha').value=new Date().toISOString().split('T')[0];
+renderResumen();renderExtras();
+</script>
+</body>
+</html>
