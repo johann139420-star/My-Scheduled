@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,7 +13,7 @@
 :root{--bg:#0a0f1e;--surface:#111827;--surface2:#1a2235;--border:#1f2e4a;--accent:#3b82f6;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--cop:#8b5cf6;--text:#f1f5f9;--text2:#94a3b8;--text3:#475569}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:90px}
-.header{position:sticky;top:0;z-index:100;background:rgba(10,15,30,0.92);backdrop-filter:blur(20px);padding:52px 18px 12px;border-bottom:0.5px solid var(--border)}
+.header{position:sticky;top:0;z-index:100;background:rgba(10,15,30,0.92);backdrop-filter:blur(20px);padding:52px 18px 0;border-bottom:0.5px solid var(--border);overflow:hidden}
 .header h1{font-size:22px;font-weight:700;letter-spacing:-0.5px}.header h1 span{color:var(--accent)}
 .header-sub{font-size:11px;color:var(--text2);margin-top:2px;display:flex;align-items:center;gap:6px}
 .trm-live{display:inline-flex;align-items:center;gap:3px;background:rgba(139,92,246,0.15);color:var(--cop);font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px}
@@ -115,6 +116,13 @@ textarea.form-input{resize:none;min-height:160px;line-height:1.6;font-size:13px}
 .cal-bar-label{font-size:9px;color:var(--text3);text-align:center}
 .cal-bar-val{font-size:9px;font-weight:700;color:var(--text2)}
 
+
+/* ── FILTRO MES ── */
+.mes-filter{display:flex;gap:6px;overflow-x:auto;padding:0 16px 12px;margin-top:-4px;scrollbar-width:none}
+.mes-filter::-webkit-scrollbar{display:none}
+.mes-chip{flex-shrink:0;padding:5px 12px;border-radius:20px;border:0.5px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;font-family:inherit;cursor:pointer;white-space:nowrap;font-weight:500;transition:all .2s}
+.mes-chip.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+
 </style>
 </head>
 <body>
@@ -125,9 +133,11 @@ textarea.form-input{resize:none;min-height:160px;line-height:1.6;font-size:13px}
     <span id="hdr-sub">Cargando...</span>
     <span class="trm-live"><span class="trm-dot"></span><span id="trm-badge">TRM...</span></span>
   </div>
+  <div class="mes-filter" id="mes-filter" style="margin:10px -18px 0;padding:0 18px 4px"></div>
 </div>
 
 <!-- ══ RESUMEN ══ -->
+
 <div class="view active" id="v-resumen">
   <div class="grid2">
     <div class="stat"><div class="stat-label">Total horas</div><div class="stat-value" style="color:var(--accent)" id="r-hs">—</div><div class="stat-sub">todas las semanas</div></div>
@@ -238,8 +248,8 @@ Martes 2pm a 10pm Avis JFK
     </div>
     <div class="card" style="padding:12px">
       <div class="cal-grid" id="cal-grid-dow">
-        <div class="cal-dow">DOM</div><div class="cal-dow">LUN</div><div class="cal-dow">MAR</div>
-        <div class="cal-dow">MIÉ</div><div class="cal-dow">JUE</div><div class="cal-dow">VIE</div><div class="cal-dow">SÁB</div>
+        <div class="cal-dow">LUN</div><div class="cal-dow">MAR</div><div class="cal-dow">MIÉ</div>
+        <div class="cal-dow">JUE</div><div class="cal-dow">VIE</div><div class="cal-dow">SÁB</div><div class="cal-dow">DOM</div>
       </div>
       <div class="cal-grid" id="cal-grid-days"></div>
     </div>
@@ -331,6 +341,8 @@ const SEMANAS_BASE = [
 ];
 
 let semanasExtra = JSON.parse(localStorage.getItem('semanasExtra') || '[]');
+const MESES_NOMBRES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+let mesFiltro = null;
 let pendingWeek = null;
 let selW = 0;
 
@@ -397,9 +409,10 @@ function tagClass(l) {
 // RENDER RESUMEN
 // ══════════════════════════════════════
 function renderResumen() {
-  const semanas = todasLasSemanas();
-  const th = totHs(), tu = th * CFG.tarifa, tc = tu * TRM, am = ahoMes();
-  document.getElementById('hdr-sub').textContent = `${semanas.length} semanas · ${th} horas · ${f$(tu)}`;
+  const semanas = semanasFiltered();
+  const th = semanas.reduce((a,s) => a+sHs(s), 0), tu = th * CFG.tarifa, tc = tu * TRM, am = ahoMes();
+  const mesLabel = mesFiltro ? MESES_NOMBRES[parseInt(mesFiltro.split('-')[1])] + ' ' + mesFiltro.split('-')[0] : 'Total';
+  document.getElementById('hdr-sub').textContent = `${mesLabel} · ${semanas.length} sem · ${th} hs · ${f$(tu)}`;
   document.getElementById('r-hs').textContent = th;
   document.getElementById('r-usd').textContent = f$(tu);
   document.getElementById('r-cop').textContent = fCOP(tc);
@@ -422,7 +435,7 @@ function renderResumen() {
 // RENDER DETALLE
 // ══════════════════════════════════════
 function renderDetalle() {
-  const semanas = todasLasSemanas();
+  const semanas = semanasFiltered();
   if (selW >= semanas.length) selW = 0;
   document.getElementById('d-tabs').innerHTML = semanas.map((s,i) =>
     `<button class="week-tab${i===selW?' active':''}" onclick="selWeek(${i})">${s.label}</button>`).join('');
@@ -609,7 +622,7 @@ function confirmarSemana() {
   cancelarPreview();
   document.getElementById('f-horario').value = '';
   document.getElementById('f-semname').value = '';
-  toast('✓ Semana guardada correctamente');
+  renderFiltro();toast('✓ Semana guardada correctamente');
 }
 
 // ══════════════════════════════════════
@@ -650,7 +663,6 @@ function goTab(name, btn) {
   btn.classList.add('active');
   if (name === 'detalle') renderDetalle();
   if (name === 'calendario') initCalendario();
-  if (name === 'calendario') initCalendario();
   if (name === 'proyeccion') renderProyeccion();
   if (name === 'resumen') renderResumen();
 }
@@ -664,6 +676,7 @@ function toast(msg, bg) {
 // ══════════════════════════════════════
 // INIT
 // ══════════════════════════════════════
+renderFiltro();
 renderResumen();
 renderSemLista();
 fetchTRM();
@@ -671,7 +684,7 @@ fetchTRM();
 // ══════════════════════════════════════
 // CALENDARIO
 // ══════════════════════════════════════
-let calMesActual = new Date(2025, 4, 1);
+let calMesActual = new Date(2026, 4, 1);
 let calSemActual = 0;
 let calVistaActual = 'mensual';
 
@@ -679,10 +692,10 @@ function buildDayMap() {
   // Mapa explícito: id de semana -> mes base (0-indexed) y anio
   // Para semanas que cruzan dos meses, usamos el día de la semana para decidir
   const SEM_MES = {
-    's1': {anio:2025, mes:4},  // mayo
-    's2': {anio:2025, mes:4},  // mayo
-    's3': {anio:2025, mes:4},  // mayo/junio — se resuelve por día
-    's4': {anio:2025, mes:5},  // junio
+    's1': {anio:2026, mes:4},  // mayo 2026
+    's2': {anio:2026, mes:4},  // mayo 2026
+    's3': {anio:2026, mes:4},  // mayo/junio 2026
+    's4': {anio:2026, mes:5},  // junio 2026
   };
   const map = {};
   todasLasSemanas().forEach(sem => {
@@ -694,13 +707,14 @@ function buildDayMap() {
       // Obtener mes/año base de la semana
       const base = SEM_MES[sem.id] || {anio:2025, mes:4};
       let mes = base.mes, anio = base.anio;
-      // Sem3: sáb 30 mayo, dom 31 mayo → mayo; lun1-vie5 → junio
+      // Sem3 (2026): sáb 30 mayo, dom 31 mayo → mayo; lun1-vie5 → junio
       if (sem.id === 's3') {
         mes = dayNum >= 30 ? 4 : 5; // 30,31 = mayo; 1-5 = junio
       }
       // Para semanas extras guardadas por el usuario, inferir del label
       if (!SEM_MES[sem.id]) {
         const labelStr = (sem.full || sem.label || '').toLowerCase();
+        anio = 2026;
         if (labelStr.includes('jun')) mes = 5;
         else if (labelStr.includes('jul')) mes = 6;
         else if (labelStr.includes('ago')) mes = 7;
@@ -708,10 +722,18 @@ function buildDayMap() {
         else if (labelStr.includes('oct')) mes = 9;
         else if (labelStr.includes('nov')) mes = 10;
         else if (labelStr.includes('dic')) mes = 11;
-        else if (labelStr.includes('ene')) { mes = 0; anio = 2026; }
-        else if (labelStr.includes('feb')) { mes = 1; anio = 2026; }
-        else if (labelStr.includes('mar')) { mes = 2; anio = 2026; }
-        else if (labelStr.includes('abr')) { mes = 3; anio = 2026; }
+        else if (labelStr.includes('ene')) { mes = 0; anio = 2027; }
+        else if (labelStr.includes('feb')) { mes = 1; anio = 2027; }
+        else if (labelStr.includes('mar')) { mes = 2; anio = 2027; }
+        else if (labelStr.includes('abr')) { mes = 3; anio = 2027; }
+      }
+      // Validate: the day number must match the expected day-of-week
+      const DIA_NUM = {'Domingo':0,'Lunes':1,'Martes':2,'Miércoles':3,'Jueves':4,'Viernes':5,'Sábado':6};
+      const expectedDow = DIA_NUM[d.d];
+      const dateObj = new Date(anio, mes, dayNum);
+      if (expectedDow !== undefined && dateObj.getDay() !== expectedDow) {
+        // Day-of-week mismatch — skip to avoid wrong calendar placement
+        return;
       }
       const key = `${anio}-${String(mes+1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
       if (!map[key]) map[key] = { horas:0, turnos:[], lugar:[] };
@@ -749,7 +771,7 @@ function renderCalMensual() {
   const y = calMesActual.getFullYear(), m = calMesActual.getMonth();
   const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   document.getElementById('cal-mes-titulo').textContent = meses[m] + ' ' + y;
-  const firstDay = new Date(y, m, 1).getDay();
+  const firstDay = (new Date(y, m, 1).getDay() + 6) % 7; // Monday-first
   const daysInMonth = new Date(y, m+1, 0).getDate();
   let html = '';
   for (let i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
@@ -854,6 +876,141 @@ function renderCalSemanal() {
 function initCalendario() {
   if (calVistaActual === 'mensual') renderCalMensual();
   else renderCalSemanal();
+}
+
+
+// ══════════════════════════════════════
+// FILTRO DE MES
+// ══════════════════════════════════════
+function getMesesDisponibles() {
+  const set = new Set();
+  todasLasSemanas().forEach(sem => {
+    sem.dias.forEach(d => {
+      const parts = d.f.trim().split(/\s+/);
+      if (parts.length < 2) return;
+      const dayNum = parseInt(parts[parts.length-1]);
+      if (isNaN(dayNum)) return;
+      const SEM_MES = {'s1':{anio:2026,mes:4},'s2':{anio:2026,mes:4},'s3':{anio:2026,mes:4},'s4':{anio:2026,mes:5}};
+      const base = SEM_MES[sem.id] || {anio:2026,mes:5};
+      let mes = base.mes, anio = base.anio;
+      if (sem.id === 's3') mes = dayNum >= 30 ? 4 : 5;
+      if (!SEM_MES[sem.id]) {
+        const lb = (sem.full||sem.label||'').toLowerCase();
+        anio = 2026;
+        if (lb.includes('jun')) mes=5; else if (lb.includes('jul')) mes=6;
+        else if (lb.includes('ago')) mes=7; else if (lb.includes('sep')) mes=8;
+        else if (lb.includes('oct')) mes=9; else if (lb.includes('nov')) mes=10;
+        else if (lb.includes('dic')) mes=11;
+        else if (lb.includes('ene')) {mes=0;anio=2027;} else if (lb.includes('feb')) {mes=1;anio=2027;}
+        else if (lb.includes('mar')) {mes=2;anio=2027;} else if (lb.includes('abr')) {mes=3;anio=2027;}
+      }
+      set.add(`${anio}-${String(mes).padStart(2,'0')}`);
+    });
+  });
+  return Array.from(set).sort();
+}
+
+function renderFiltro() {
+  const meses = getMesesDisponibles();
+  const cont = document.getElementById('mes-filter');
+  let html = `<button class="mes-chip${mesFiltro===null?' active':''}" onclick="setMesFiltro(null)">Todos</button>`;
+  meses.forEach(key => {
+    const [anio, mesIdx] = key.split('-').map(Number);
+    const label = MESES_NOMBRES[mesIdx] + ' ' + anio;
+    html += `<button class="mes-chip${mesFiltro===key?' active':''}" onclick="setMesFiltro('${key}')">${label}</button>`;
+  });
+  cont.innerHTML = html;
+}
+
+function setMesFiltro(key) {
+  mesFiltro = key;
+  renderFiltro();
+  // Refresh active view
+  const activeView = document.querySelector('.view.active');
+  if (!activeView) return;
+  const id = activeView.id;
+  if (id === 'v-resumen') renderResumen();
+  else if (id === 'v-detalle') renderDetalle();
+  else if (id === 'v-proyeccion') renderProyeccion();
+  else if (id === 'v-calendario') {
+    if (key) {
+      const [anio, mes] = key.split('-').map(Number);
+      calMesActual = new Date(anio, mes, 1);
+    }
+    initCalendario();
+  }
+}
+
+function semanaMatchFiltro(sem) {
+  if (!mesFiltro) return true;
+  const [fAnio, fMes] = mesFiltro.split('-').map(Number);
+  const SEM_MES = {'s1':{anio:2026,mes:4},'s2':{anio:2026,mes:4},'s3':{anio:2026,mes:4},'s4':{anio:2026,mes:5}};
+  // Check if any day in the semana matches the filter month
+  return sem.dias.some(d => {
+    const parts = d.f.trim().split(/\s+/);
+    if (parts.length < 2) return false;
+    const dayNum = parseInt(parts[parts.length-1]);
+    if (isNaN(dayNum)) return false;
+    const base = SEM_MES[sem.id] || {anio:2026,mes:5};
+    let mes = base.mes, anio = base.anio;
+    if (sem.id === 's3') mes = dayNum >= 30 ? 4 : 5;
+    if (!SEM_MES[sem.id]) {
+      const lb = (sem.full||sem.label||'').toLowerCase();
+      anio=2026;
+      if (lb.includes('jun')) mes=5; else if (lb.includes('jul')) mes=6;
+      else if (lb.includes('ago')) mes=7; else if (lb.includes('sep')) mes=8;
+      else if (lb.includes('oct')) mes=9; else if (lb.includes('nov')) mes=10;
+      else if (lb.includes('dic')) mes=11;
+    }
+    return mes === fMes && anio === fAnio;
+  });
+}
+
+function diasMes(dia, semId) {
+  // Returns the month (0-indexed) for a given day in a semana
+  const SEM_MES = {'s1':{anio:2026,mes:4},'s2':{anio:2026,mes:4},'s3':{anio:2026,mes:4},'s4':{anio:2026,mes:5}};
+  const parts = dia.f.trim().split(/\s+/);
+  const dayNum = parseInt(parts[parts.length-1]);
+  if (isNaN(dayNum)) return {mes:4, anio:2026};
+  const base = SEM_MES[semId] || {anio:2026, mes:5};
+  let mes = base.mes, anio = base.anio;
+  if (semId === 's3') mes = dayNum >= 30 ? 4 : 5;
+  if (!SEM_MES[semId]) {
+    const lb = (dia.l||'').toLowerCase();
+  }
+  return {mes, anio};
+}
+
+function semanasFiltered() {
+  if (!mesFiltro) return todasLasSemanas();
+  const [fAnio, fMes] = mesFiltro.split('-').map(Number);
+  const SEM_MES = {'s1':{anio:2026,mes:4},'s2':{anio:2026,mes:4},'s3':{anio:2026,mes:4},'s4':{anio:2026,mes:5}};
+  const result = [];
+  todasLasSemanas().forEach(sem => {
+    // Filter dias to only those matching the selected month
+    const diasFiltrados = sem.dias.filter(d => {
+      const parts = d.f.trim().split(/\s+/);
+      const dayNum = parseInt(parts[parts.length-1]);
+      if (isNaN(dayNum)) return false;
+      const base = SEM_MES[sem.id] || {anio:2026, mes:5};
+      let mes = base.mes, anio = base.anio;
+      if (sem.id === 's3') mes = dayNum >= 30 ? 4 : 5;
+      if (!SEM_MES[sem.id]) {
+        const lb = (sem.full||sem.label||'').toLowerCase();
+        anio = 2026;
+        if (lb.includes('jun')) mes=5; else if (lb.includes('jul')) mes=6;
+        else if (lb.includes('ago')) mes=7; else if (lb.includes('sep')) mes=8;
+        else if (lb.includes('oct')) mes=9; else if (lb.includes('nov')) mes=10;
+        else if (lb.includes('dic')) mes=11;
+      }
+      return mes === fMes && anio === fAnio;
+    });
+    if (diasFiltrados.length > 0) {
+      // Return a copy of the semana with only the filtered dias
+      result.push({ ...sem, dias: diasFiltrados });
+    }
+  });
+  return result;
 }
 
 </script>
