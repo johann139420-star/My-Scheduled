@@ -676,6 +676,14 @@ let calSemActual = 0;
 let calVistaActual = 'mensual';
 
 function buildDayMap() {
+  // Mapa explícito: id de semana -> mes base (0-indexed) y anio
+  // Para semanas que cruzan dos meses, usamos el día de la semana para decidir
+  const SEM_MES = {
+    's1': {anio:2025, mes:4},  // mayo
+    's2': {anio:2025, mes:4},  // mayo
+    's3': {anio:2025, mes:4},  // mayo/junio — se resuelve por día
+    's4': {anio:2025, mes:5},  // junio
+  };
   const map = {};
   todasLasSemanas().forEach(sem => {
     sem.dias.forEach(d => {
@@ -683,14 +691,27 @@ function buildDayMap() {
       if (parts.length < 2) return;
       const dayNum = parseInt(parts[parts.length - 1]);
       if (isNaN(dayNum)) return;
-      const labelStr = (sem.full || sem.label || '').toLowerCase();
-      let mes = 4, anio = 2025;
-      if (labelStr.includes('junio') || labelStr.includes(' jun')) mes = 5;
-      else if (labelStr.includes('julio') || labelStr.includes(' jul')) mes = 6;
-      // Fix: sem3 has days in both may and jun
-      if (mes === 4 && labelStr.includes('jun') && dayNum <= 6) {
-        const dNom = (d.d || '').toLowerCase().slice(0,3);
-        if (['lun','mar','mié','mie','jue','vie'].includes(dNom)) mes = 5;
+      // Obtener mes/año base de la semana
+      const base = SEM_MES[sem.id] || {anio:2025, mes:4};
+      let mes = base.mes, anio = base.anio;
+      // Sem3: sáb 30 mayo, dom 31 mayo → mayo; lun1-vie5 → junio
+      if (sem.id === 's3') {
+        mes = dayNum >= 30 ? 4 : 5; // 30,31 = mayo; 1-5 = junio
+      }
+      // Para semanas extras guardadas por el usuario, inferir del label
+      if (!SEM_MES[sem.id]) {
+        const labelStr = (sem.full || sem.label || '').toLowerCase();
+        if (labelStr.includes('jun')) mes = 5;
+        else if (labelStr.includes('jul')) mes = 6;
+        else if (labelStr.includes('ago')) mes = 7;
+        else if (labelStr.includes('sep')) mes = 8;
+        else if (labelStr.includes('oct')) mes = 9;
+        else if (labelStr.includes('nov')) mes = 10;
+        else if (labelStr.includes('dic')) mes = 11;
+        else if (labelStr.includes('ene')) { mes = 0; anio = 2026; }
+        else if (labelStr.includes('feb')) { mes = 1; anio = 2026; }
+        else if (labelStr.includes('mar')) { mes = 2; anio = 2026; }
+        else if (labelStr.includes('abr')) { mes = 3; anio = 2026; }
       }
       const key = `${anio}-${String(mes+1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
       if (!map[key]) map[key] = { horas:0, turnos:[], lugar:[] };
