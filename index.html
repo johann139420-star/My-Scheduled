@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -39,7 +38,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 .day-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:0.5px solid var(--border)}
 .day-row:last-child{border-bottom:none}
 .day-dot{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
-.dot-blue{background:rgba(59,130,246,.15);color:var(--accent)}.dot-red{background:rgba(239,68,68,.15);color:var(--red)}
+.dot-blue{background:rgba(59,130,246,.15);color:var(--accent)}.dot-teal{background:rgba(20,184,166,0.15);color:#14b8a6}
 .tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px}
 .tag-budget{background:rgba(59,130,246,.15);color:#60a5fa}.tag-avis{background:rgba(16,185,129,.15);color:#34d399}.tag-other{background:rgba(148,163,184,.15);color:var(--text2)}
 .prog-wrap{background:var(--surface2);border-radius:6px;height:7px;overflow:hidden;margin-top:5px}
@@ -81,17 +80,19 @@ textarea.form-input{resize:none;min-height:160px;line-height:1.6;font-size:13px}
 .cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .cal-nav-btn{width:34px;height:34px;border-radius:10px;border:0.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .cal-nav-title{font-size:16px;font-weight:700;letter-spacing:-0.3px}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:14px}
-.cal-dow{text-align:center;font-size:10px;font-weight:600;color:var(--text3);padding:4px 0;text-transform:uppercase}
-.cal-day{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;background:var(--surface2);border:0.5px solid transparent;transition:all .15s}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:0;width:100%}
+.cal-dow{text-align:center;font-size:10px;font-weight:600;color:var(--text3);padding:6px 0;text-transform:uppercase;height:28px;display:flex;align-items:center;justify-content:center}
+.cal-day{height:44px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;background:var(--surface2);border:0.5px solid transparent;transition:all .15s}
 .cal-day.empty{background:transparent;border-color:transparent;cursor:default}
 .cal-day.has-work{background:rgba(59,130,246,0.12);border-color:rgba(59,130,246,0.25)}
-.cal-day.heavy-work{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.25)}
+.cal-day.heavy-work{background:rgba(20,184,166,0.15);border-color:rgba(20,184,166,0.35)}
+.cal-day.rest-day{background:rgba(249,115,22,0.12);border-color:rgba(249,115,22,0.3)}
+.cal-day.rest-day .cal-day-num{color:#fb923c}
 .cal-day.selected{border-color:var(--accent);background:rgba(59,130,246,0.2)}
 .cal-day-num{font-size:12px;font-weight:600;color:var(--text2)}
 .cal-day.has-work .cal-day-num{color:var(--text)}
 .cal-day-hs{font-size:9px;font-weight:700;color:var(--accent);margin-top:1px}
-.cal-day.heavy-work .cal-day-hs{color:var(--red)}
+.cal-day.heavy-work .cal-day-hs{color:#14b8a6}
 .cal-day-dot{display:flex;gap:2px;margin-top:2px}
 .cal-dot{width:4px;height:4px;border-radius:50%}
 .cal-detail{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;display:none}
@@ -243,15 +244,15 @@ Martes 2pm a 10pm Avis JFK
     </div>
     <div class="cal-legend">
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(59,130,246,0.4)"></div>1–8 hs</div>
-      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(239,68,68,0.5)"></div>+8 hs</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(20,184,166,0.5)"></div>+8 hs</div>
+      <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(249,115,22,0.5)"></div>Descanso</div>
       <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--surface2)"></div>Libre</div>
     </div>
     <div class="card" style="padding:12px">
-      <div class="cal-grid" id="cal-grid-dow">
+      <div class="cal-grid" id="cal-grid-main">
         <div class="cal-dow">LUN</div><div class="cal-dow">MAR</div><div class="cal-dow">MIÉ</div>
         <div class="cal-dow">JUE</div><div class="cal-dow">VIE</div><div class="cal-dow">SÁB</div><div class="cal-dow">DOM</div>
       </div>
-      <div class="cal-grid" id="cal-grid-days"></div>
     </div>
     <div class="cal-detail" id="cal-day-detail"></div>
   </div>
@@ -449,7 +450,7 @@ function renderDetalle() {
     <div style="font-size:11px;color:var(--text3);margin-top:2px">${desc} hs descanso</div></div>`;
   document.getElementById('d-dias').innerHTML = s.dias.map(d => `
     <div class="day-row">
-      <div class="day-dot ${d.h>=16?'dot-red':'dot-blue'}">${d.d.slice(0,3).toUpperCase()}</div>
+      <div class="day-dot ${d.h>=16?'dot-teal':'dot-blue'}">${d.d.slice(0,3).toUpperCase()}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:14px;font-weight:600">${d.d} <span style="font-size:12px;color:var(--text2);font-weight:400">${d.f}</span></div>
         <div style="font-size:11px;color:var(--text2);margin-top:3px;line-height:1.7">${d.t.join('<br>')}</div>
@@ -688,6 +689,23 @@ let calMesActual = new Date(2026, 4, 1);
 let calSemActual = 0;
 let calVistaActual = 'mensual';
 
+
+function checkInWeekRange(y, m, d) {
+  // Returns true if the date falls within any recorded work week (even if it was a rest day)
+  const RANGES = [
+    {y:2026, m:5, from:20, to:22},  // Sem1 May 20-22
+    {y:2026, m:5, from:23, to:29},  // Sem2 May 23-29
+    {y:2026, m:5, from:30, to:31},  // Sem3 May part
+    {y:2026, m:6, from:1,  to:5},   // Sem3 Jun part
+    {y:2026, m:6, from:6,  to:12},  // Sem4 Jun 6-12
+  ];
+  // Also include extra saved semanas
+  semanasExtra.forEach(sem => {
+    // approximate from first to last dia
+  });
+  return RANGES.some(r => r.y === y && r.m === m && d >= r.from && d <= r.to);
+}
+
 function buildDayMap() {
   // Mapa explícito: id de semana -> mes base (0-indexed) y anio
   // Para semanas que cruzan dos meses, usamos el día de la semana para decidir
@@ -779,7 +797,9 @@ function renderCalMensual() {
     const key = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const info = map[key];
     const hs = info ? info.horas : 0;
-    const cls = hs >= 16 ? 'heavy-work' : hs > 0 ? 'has-work' : '';
+    // Determine if this day falls within any week range (worked or rest)
+    const isInWeekRange = checkInWeekRange(y, m+1, d);
+    const cls = hs >= 16 ? 'heavy-work' : hs > 0 ? 'has-work' : isInWeekRange ? 'rest-day' : '';
     const dotsHtml = info ? '<div class="cal-day-dot">' +
       info.lugar.slice(0,2).map(l => `<div class="cal-dot" style="background:${l.toLowerCase().includes('budget')?'#60a5fa':l.toLowerCase().includes('avis')?'#34d399':'#94a3b8'}"></div>`).join('') +
       '</div>' : '';
@@ -789,7 +809,14 @@ function renderCalMensual() {
       ${dotsHtml}
     </div>`;
   }
-  document.getElementById('cal-grid-days').innerHTML = html;
+  // Remove old day cells, keep DOW headers, append new days
+const gridMain = document.getElementById('cal-grid-main');
+// Remove all non-dow children
+Array.from(gridMain.children).forEach(el => { if (!el.classList.contains('cal-dow')) el.remove(); });
+// Append new day cells
+const tmp = document.createElement('div');
+tmp.innerHTML = html;
+Array.from(tmp.children).forEach(el => gridMain.appendChild(el));
   document.getElementById('cal-day-detail').classList.remove('show');
 }
 
@@ -830,7 +857,7 @@ function renderCalSemanal() {
     const dia = sem.dias.find(d => d.d === dName);
     const hs = dia ? dia.h : 0;
     const pct = Math.round((hs / maxHs) * 100);
-    const color = hs >= 16 ? 'var(--red)' : hs > 0 ? 'var(--accent)' : 'var(--surface2)';
+    const color = hs >= 16 ? '#14b8a6' : hs > 0 ? 'var(--accent)' : 'var(--surface2)';
     const dateNum = dia ? dia.f.split(' ').pop() : '--';
     weekHtml += `<div class="cal-week-col">
       <div class="cal-week-dow">${SHORT[idx]}</div>
@@ -1011,6 +1038,78 @@ function semanasFiltered() {
     }
   });
   return result;
+}
+
+
+// ══════════════════════════════════════
+// EXPORTAR / IMPORTAR
+// ══════════════════════════════════════
+function exportarDatos() {
+  const datos = {
+    version: 1,
+    fecha: new Date().toISOString(),
+    semanasExtra: semanasExtra
+  };
+  const json = JSON.stringify(datos, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const fecha = new Date().toLocaleDateString('es-CO').replace(/\//g,'-');
+  a.href = url;
+  a.download = `mis-turnos-${fecha}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  const st = document.getElementById('backup-status');
+  if (st) {
+    st.style.color = 'var(--green)';
+    st.textContent = '✓ Archivo exportado — guardalo en iCloud Drive';
+    setTimeout(() => { st.textContent = ''; }, 4000);
+  }
+}
+
+function importarDatos(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const datos = JSON.parse(e.target.result);
+      if (!datos.semanasExtra || !Array.isArray(datos.semanasExtra)) {
+        throw new Error('Formato inválido');
+      }
+      // Merge: add semanas that don't already exist
+      let agregadas = 0;
+      datos.semanasExtra.forEach(sem => {
+        const existe = semanasExtra.find(s => s.id === sem.id);
+        if (!existe) {
+          semanasExtra.push(sem);
+          agregadas++;
+        }
+      });
+      localStorage.setItem('semanasExtra', JSON.stringify(semanasExtra));
+      renderFiltro();
+      renderSemLista();
+      renderResumen();
+      const st = document.getElementById('backup-status');
+      if (st) {
+        st.style.color = 'var(--green)';
+        st.textContent = agregadas > 0
+          ? '✓ ' + agregadas + ' semana(s) importada(s) correctamente'
+          : '✓ Datos ya estaban actualizados';
+        setTimeout(() => { st.textContent = ''; }, 4000);
+      }
+    } catch(err) {
+      const st = document.getElementById('backup-status');
+      if (st) {
+        st.style.color = 'var(--red)';
+        st.textContent = '⚠️ Archivo inválido. Verificá que sea un respaldo correcto.';
+        setTimeout(() => { st.textContent = ''; }, 4000);
+      }
+    }
+    // Reset input so same file can be re-imported
+    event.target.value = '';
+  };
+  reader.readAsText(file);
 }
 
 </script>
